@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.db.models import Q
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 
-
+from openai import error as openai_error
 
 from django.contrib import messages
 
@@ -177,46 +177,94 @@ def get_completion(messages, model="gpt-3.5-turbo", temperature=0):
     return response.choices[0].message["content"]
 
 # Initialize conversation with a system message
+
 conversation = [
         {'role': 'system', 'content': """
-        You are an assistant that gives insights only about books and if asked other information. Please respond stating 'Apologies, 
-        I can give only insights of Books. Greet the user everytime he says hi. In case the user has not provided the name, ask the user,
-         "May I know your name?" then greet the user. Wait for the user to respond with their name. 
-        After the user responds with the name, ask the user which type of book they are interested in. 
-        Give them a list of options. In the first response, don't ask the user if they need further assistance.
-        if user exits or says bye then respond with goodbye message.
+        You are an assistant that gives insights and book list details only about books.
+        Please respond stating 'Apologies, I can give only insights of Books if asked other information except books. 
+        Greet the user everytime he says hi. 
+        In case the user has not provided the name, ask the user, "May I know your name?" then greet the user. 
+        Wait for the user to respond with their name. After the user responds with the name, ask the user which type of book they are interested in. 
+        Give them a list of options. In the first response, don't ask the user if they need further assistance. 
+        If the user exits or says bye then respond with goodbye message.
         """}
     ]
 
-def home_view(request):
+# def home_view(request):
+#
+#     response = None
+#     default = 'Welcome to my chatbot'
+#     selected_choice = ''
+#     if request.method == 'POST':
+#         form = UserBook(request.POST)  # Use the correct form here
+#         if form.is_valid():
+#             selected_choice = form.cleaned_data['books']
+#
+#             # Add user's message to the conversation
+#             conversation.append({'role': 'user', 'content': selected_choice})
+#
+#             # Get response from ChatGPT based on the entire conversation
+#             response = get_completion(conversation, temperature=1)
+#             # print(f"MyBot: {response}")
+#
+#             # Add ChatGPT's response to the conversation
+#             conversation.append({'role': 'assistant', 'content': response})
+#
+#             # Print ChatGPT's response
+#
+#             form = UserBook()
+#
+#     else:
+#         form = UserBook()
+#
+#     # context = {'form': form, 'response': response, 'selected_choice': selected_choice}
+#     # return render(request, 'translator.html', context)
+#
+#     reversed_conversation = conversation[0:]
+#
+#     context = {
+#         'form': form,
+#         'response': response,
+#         'selected_choice': selected_choice,
+#         'conversation': reversed_conversation,
+#         'default': default
+#     }
+#     return render(request, 'translator.html', context)
 
-    response = 'Welcome to my chatbot'
+def home_view(request):
+    response = None
     default = 'Welcome to my chatbot'
     selected_choice = ''
+    error_message = None  # Variable to store error messages
+
     if request.method == 'POST':
-        form = UserBook(request.POST)  # Use the correct form here
-        if form.is_valid():
-            selected_choice = form.cleaned_data['books']
+        form = UserBook(request.POST)
 
-            # Add user's message to the conversation
-            conversation.append({'role': 'user', 'content': selected_choice})
+        try:
+            if form.is_valid():
+                selected_choice = form.cleaned_data['books']
 
-            # Get response from ChatGPT based on the entire conversation
-            response = get_completion(conversation, temperature=1)
-            # print(f"MyBot: {response}")
+                # Add user's message to the conversation
+                conversation.append({'role': 'user', 'content': selected_choice})
 
-            # Add ChatGPT's response to the conversation
-            conversation.append({'role': 'assistant', 'content': response})
+                # Get response from ChatGPT based on the entire conversation
+                response = get_completion(conversation, temperature=1)
 
-            # Print ChatGPT's response
+                # Add ChatGPT's response to the conversation
+                conversation.append({'role': 'assistant', 'content': response})
 
-            form = UserBook()
+        except openai_error.OpenAIError as e:
+            # Handle OpenAI API errors
+            error_message = f"API Error: {str(e)}"
+
+        except Exception as e:
+            # Handle other exceptions
+            error_message = f"An unexpected error occurred: {str(e)}"
+
+        form = UserBook()
 
     else:
         form = UserBook()
-
-    # context = {'form': form, 'response': response, 'selected_choice': selected_choice}
-    # return render(request, 'translator.html', context)
 
     reversed_conversation = conversation[0:]
 
@@ -225,9 +273,9 @@ def home_view(request):
         'response': response,
         'selected_choice': selected_choice,
         'conversation': reversed_conversation,
-        'default': default
+        'default': default,
+        'error_message': error_message,  # Add error message to context
     }
+
     return render(request, 'translator.html', context)
-
-
 
