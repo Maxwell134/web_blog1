@@ -1,0 +1,116 @@
+<!-- translator.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: grey;
+            margin: 30px;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            scroll-behavior: smooth;
+
+
+        }
+
+        h3 {
+            margin: 30px 100px;
+            color: #fff;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .chat-box {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 10px;
+            width: 700px; /* Adjust width as needed */
+            line-height: 1.5;
+            background-color: black;
+            opacity: 90%;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0.5, 0.5);
+            overflow-y: auto;
+            max-height: 500px; /* Adjust max-height as needed */
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            color: purple;
+        }
+
+        .assistant-message {
+            color: green;
+        }
+
+        span {
+            color: #ffff;
+        }
+
+        .form-container {
+            margin-left: 50px;
+        }
+
+        form {
+            margin-right: 200px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 30px;
+            margin-right: -100px;
+            background-color: #4CAF50;
+            color: white;
+            border: 10px solid grey;
+            cursor: pointer;
+
+        }
+    </style>
+    <title>Book Chatbot</title>
+</head>
+<body>
+<!--    <h3>Book Chatbot</h3>-->
+
+    <div class="chat-container">
+        <div id="chat" class="chat-box">
+            <span style="text-align: center;">{{ default }}</span>
+            {% for message in conversation %}
+                <div class="message">
+                    {% if message.role == 'user' %}
+                        <p class="user-message">USER:<span>{{ message.content }}</span></p>
+                    {% elif message.role == 'assistant' %}
+                        <p class="assistant-message">MYBOT: <span>{{ message.content }}</span></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-container">
+            <form method="post" action="{% url 'translator' %}" style="margin-top: 10px; margin-left: -450px; position: fixed;">
+                {% csrf_token %}
+                {{ form.books.label_tag }}
+                {{ form.books }}
+               <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Scroll to the bottom of the chat on page load
+            const chat = document.getElementById('chat');
+            chat.scrollTop = chat.scrollHeight;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>contact_info</title>
+</head>
+<body>
+<h2> Contact info of customers: </h2>
+
+{% for contact in contact_details %}
+
+<ul>
+    <li>
+{{ contact.name }}<br>
+{{ contact.contact_number }}<br>
+{{ contact.email_id }}<br>
+{{ contact.body }} <br><br>
+{{ contact.date_published }}
+
+
+    </li>
+    </ul>
+{% endfor %}
+
+</body>
+</html>

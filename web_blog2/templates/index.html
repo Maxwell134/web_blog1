@@ -1,0 +1,39 @@
+<h1>Post</h1>
+
+<style>
+    .messages li {
+        color: green;
+    }
+</style>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="GET" action="{% url 'home' %}">
+    <input type="text" name="q" placeholder="Search by title...">
+    <button type="submit">Search</button>
+</form>
+
+<!-- index.html -->
+
+
+
+{% for post in posts %}
+    <ul>
+        <li>
+            <a href="{% url 'details' post.pk %}">{{ post.title }} </a> <br><br>
+            By: {{ post.author.first_name }} <br>
+            {{ post.body }} <br><br>
+            <button> <a href="{% url 'update' post.pk %}"> Update </a> </button>
+            <button> <a href="{% url 'delete' post.pk  %}" > Delete </a></button>
+            <br> <br>{{ post.date_published }}
+        </li>
+    </ul>
+{% endfor %}
+
+
