@@ -82,7 +82,10 @@
 <!--    <h3>Book Chatbot</h3>-->
 
     <div class="chat-container">
+        <!-- Example HTML for copy button -->
+
         <div id="chat" class="chat-box">
+          <button onclick="copyChat()">Copy</button>
             <span style="text-align: center;">{{ default }}</span>
             {% for message in conversation %}
                 <div class="message">
@@ -111,6 +114,32 @@
             const chat = document.getElementById('chat');
             chat.scrollTop = chat.scrollHeight;
         });
+        <!-- Example JavaScript -->
+<script>
+  function addMessage(message) {
+    // Function to add a new message to the chat container
+    const chatContainer = document.getElementById('chat-container');
+    const newMessage = document.createElement('p');
+    newMessage.textContent = message;
+    chatContainer.appendChild(newMessage);
+  }
+
+  function copyChat() {
+    // Function to copy the content of the chat container
+    const chatContainer = document.getElementById('chat-container');
+    const range = document.createRange();
+    range.selectNode(chatContainer);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    alert('Chat copied!');
+  }
+
     </script>
+
+<!-- Example HTML for copy button -->
+
+
 </body>
 </html>

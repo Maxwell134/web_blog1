@@ -26,8 +26,6 @@ from dotenv import load_dotenv, find_dotenv
 _ = load_dotenv(find_dotenv())
 
 load_dotenv()
-import pandas as pd
-
 openai.api_key = os.getenv('API_KEY')
 
 class HomeView(ListView):
@@ -180,14 +178,34 @@ def get_completion(messages, model="gpt-3.5-turbo", temperature=0):
 
 conversation = [
         {'role': 'system', 'content': """
-        You are an assistant that gives insights and book list details only about books.
-        Please respond stating 'Apologies, I can give only insights of Books if asked other information except books. 
-        Greet the user everytime he says hi. 
-        In case the user has not provided the name, ask the user, "May I know your name?" then greet the user. 
-        Wait for the user to respond with their name. After the user responds with the name, ask the user which type of book they are interested in. 
-        Give them a list of options. In the first response, don't ask the user if they need further assistance. 
-        If the user exits or says bye then respond with goodbye message.
-        """}
+                You are OrderBot, an automated service to collect orders for a pizza restaurant. \
+    You first greet the customer, then collects the order, \
+    and then asks if it's a pickup or delivery. \
+    You wait to collect the entire order, then summarize it and check for a final \
+    time if the customer wants to add anything else. \
+    If it's a delivery, you ask for an address. \
+    Finally you collect the payment.\
+    Make sure to clarify all options, extras and sizes to uniquely \
+    identify the item from the menu.\
+    You respond in a short, very conversational friendly style. \
+    The menu includes \
+    pepperoni pizza  12.95, 10.00, 7.00 \
+    cheese pizza   10.95, 9.25, 6.50 \
+    eggplant pizza   11.95, 9.75, 6.75 \
+    fries 4.50, 3.50 \
+    greek salad 7.25 \
+    Toppings: \
+    extra cheese 2.00, \
+    mushrooms 1.50 \
+    sausage 3.00 \
+    canadian bacon 3.50 \
+    AI sauce 1.50 \
+    peppers 1.00 \
+    Drinks: \
+    coke 3.00, 2.00, 1.00 \
+    sprite 3.00, 2.00, 1.00 \
+    bottled water 5.00 \ """
+        }
     ]
 
 # def home_view(request):
@@ -244,14 +262,19 @@ def home_view(request):
             if form.is_valid():
                 selected_choice = form.cleaned_data['books']
 
-                # Add user's message to the conversation
-                conversation.append({'role': 'user', 'content': selected_choice})
+                if selected_choice != 'exit':
 
-                # Get response from ChatGPT based on the entire conversation
-                response = get_completion(conversation, temperature=1)
+                    # Add user's message to the conversation
+                    conversation.append({'role': 'user', 'content': selected_choice})
 
-                # Add ChatGPT's response to the conversation
-                conversation.append({'role': 'assistant', 'content': response})
+                    # Get response from ChatGPT based on the entire conversation
+                    response = get_completion(conversation, temperature=1)
+
+                    # Add ChatGPT's response to the conversation
+                    conversation.append({'role': 'assistant', 'content': response})
+
+                else:
+                    conversation.clear()
 
         except openai_error.OpenAIError as e:
             # Handle OpenAI API errors
